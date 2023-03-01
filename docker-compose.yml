@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  market-database:
+    image: mongo
+    container_name: market-database
+    ports:
+      - 27017:27017
+    networks:
+      - market
+
+networks:
+  market:
