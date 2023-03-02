@@ -33,9 +33,21 @@ public class CategoriaService {
                 .orElseThrow(() -> new RuntimeException("Not found!")));
     }
 
+    public CategoriaDTO create(CategoriaDTO categoriaDTO) {
+        Categoria categoria = fromDto(categoriaDTO);
+        categoria.setId(null);
+        categoria = categoriaRepository.save(categoria);
+
+        return CategoriaDTO.fromCategoriaEntity(categoria);
+    }
+
     private List<CategoriaDTO> getListByPage(Page<Categoria> page) {
         return page.get()
                 .map(categoria -> CategoriaDTO.fromCategoriaEntity(categoria))
                 .collect(Collectors.toList());
+    }
+
+    private Categoria fromDto(CategoriaDTO categoriaDTO) {
+        return new Categoria(categoriaDTO.getId(), categoriaDTO.getNome());
     }
 }
