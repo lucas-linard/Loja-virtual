@@ -50,6 +50,12 @@ public class CategoriaService {
         return CategoriaDTO.fromCategoriaEntity(categoria);
     }
 
+    public void delete(String id) {
+        CategoriaDTO aux = findById(id);
+        Categoria categoria = fromDto(aux);
+        categoriaRepository.deleteById(categoria.getId());
+    }
+
     private List<CategoriaDTO> getListByPage(Page<Categoria> page) {
         return page.get()
                 .map(categoria -> CategoriaDTO.fromCategoriaEntity(categoria))

@@ -42,4 +42,10 @@ public class CategoriaController {
     public ResponseEntity<CategoriaDTO> update(@PathVariable String id, @RequestBody CategoriaDTO categoriaDTO) {
         return ResponseEntity.ok(categoriaService.update(id, categoriaDTO));
     }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> delete(@PathVariable String id) {
+        categoriaService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
