@@ -41,6 +41,15 @@ public class CategoriaService {
         return CategoriaDTO.fromCategoriaEntity(categoria);
     }
 
+    public CategoriaDTO update(String id, CategoriaDTO categoriaDTO) {
+        CategoriaDTO aux = findById(id);
+        Categoria categoria = fromDto(aux);
+        updateFields(categoria, categoriaDTO);
+        categoria = categoriaRepository.save(categoria);
+
+        return CategoriaDTO.fromCategoriaEntity(categoria);
+    }
+
     private List<CategoriaDTO> getListByPage(Page<Categoria> page) {
         return page.get()
                 .map(categoria -> CategoriaDTO.fromCategoriaEntity(categoria))
@@ -49,5 +58,9 @@ public class CategoriaService {
 
     private Categoria fromDto(CategoriaDTO categoriaDTO) {
         return new Categoria(categoriaDTO.getId(), categoriaDTO.getNome());
+    }
+
+    private void updateFields(Categoria outdated, CategoriaDTO updated) {
+        outdated.setNome(updated.getNome());
     }
 }

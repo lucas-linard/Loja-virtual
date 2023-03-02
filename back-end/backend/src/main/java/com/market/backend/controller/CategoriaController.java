@@ -26,7 +26,7 @@ public class CategoriaController {
         return ResponseEntity.ok(categoriaService.findAll(pageable));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<CategoriaDTO> findById(@PathVariable String id) {
         return ResponseEntity.ok(categoriaService.findById(id));
     }
@@ -36,5 +36,10 @@ public class CategoriaController {
         categoriaDTO = categoriaService.create(categoriaDTO);
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(categoriaDTO.getId()).toUri();
         return ResponseEntity.created(uri).body(categoriaDTO);
+    }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<CategoriaDTO> update(@PathVariable String id, @RequestBody CategoriaDTO categoriaDTO) {
+        return ResponseEntity.ok(categoriaService.update(id, categoriaDTO));
     }
 }
