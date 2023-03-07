@@ -17,11 +17,14 @@ import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import SyncIcon from "@mui/icons-material/Sync";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { mainListItems, secondaryListItems } from "./listItems";
-import { Button, TextField } from "@mui/material";
+
 import axios from "axios";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
+import { ParkRounded } from "@mui/icons-material";
 
 export async function getServerSideProps() {
   const res = await axios.get("http://localhost:3000/api/category");
@@ -96,31 +99,51 @@ const Drawer = styled(MuiDrawer, {
 const mdTheme = createTheme();
 
 export default function DashboardContent({ data }) {
+  const apiRef = useGridApiRef();
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
-  console.log(data[0]);
+
   const columns = [
     {
       field: "nome",
       headerName: "Nome",
-      width: 150,
+      width: 200,
       editable: true,
+      renderCell: (params) => {
+        return (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: '100%'}}>
+            {params.value}
+            <IconButton variant="contained" onClick={() => params.api.startCellEditMode({ id: params.id, field: params.field})}>
+            <ModeEditIcon />
+            </IconButton>
+          </div>
+        );
+      },
     },
     {
       field: "id",
       headerName: "",
       width: 150,
-      editable: false,
+      editable: true,
       renderCell: (params) => (
-        <IconButton
-          aria-label="delete"
-          color="success"
-          onClick={() => updateCategory(params)}
-        >
-          <SyncIcon />
-        </IconButton>
+        <div style={{ display: "flex", justifyContent: "space-evenly", alignItems: "center", width: '100%'}}>
+          <IconButton
+            aria-label="delete"
+            color="success"
+            onClick={() => updateCategory(params)}
+          >
+            <SyncIcon />
+          </IconButton>
+          <IconButton
+            aria-label="delete"
+            color="error"
+            onClick={() => updateCategory(params)}
+          >
+            <DeleteForeverIcon />
+          </IconButton>
+        </div>
       ),
     },
   ];
@@ -212,7 +235,13 @@ export default function DashboardContent({ data }) {
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={12} lg={12} sx={{display: 'flex', justifyContent: 'center'}}>
+              <Grid
+                item
+                xs={12}
+                md={12}
+                lg={12}
+                sx={{ display: "flex", justifyContent: "center" }}
+              >
                 <Paper
                   sx={{
                     p: 5,
@@ -226,6 +255,7 @@ export default function DashboardContent({ data }) {
                   <DataGrid
                     rows={data}
                     columns={columns}
+                    apiRef={apiRef}
                     initialState={{
                       pagination: {
                         paginationModel: {
