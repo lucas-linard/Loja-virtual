@@ -16,10 +16,20 @@ import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import UpdateIcon from '@mui/icons-material/Update';
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { mainListItems, secondaryListItems } from "./listItems";
 import { Button, TextField } from "@mui/material";
 import axios from "axios";
+import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
+
+export async function getServerSideProps() {
+  const res = await axios.get("http://localhost:8080/categorias");
+  const data = res.data.content;
+  return { props: { data } };
+}
 
 function Copyright(props) {
   return (
@@ -87,25 +97,117 @@ const Drawer = styled(MuiDrawer, {
 
 const mdTheme = createTheme();
 
-function DashboardContent() {
-  const [open, setOpen] = React.useState(true);
+export default function DashboardContent({ data }) {
   const [categoryInput, setCategoryInput] = React.useState("");
+  const [categories, setCategories] = React.useState(data);
+
+  const apiRef = useGridApiRef();
+  const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
     setOpen(!open);
   };
+
+  const columns = [
+    {
+      field: "nome",
+      headerName: "Nome",
+      width: 200,
+      editable: true,
+      renderCell: (params) => {
+        return (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            {params.value}
+            <IconButton
+              variant="contained"
+              onClick={() =>
+                params.api.startCellEditMode({
+                  id: params.id,
+                  field: params.field,
+                })
+              }
+            >
+              <ModeEditIcon />
+            </IconButton>
+          </div>
+        );
+      },
+    },
+    {
+      field: "id",
+      headerName: "Ações",
+      width: 150,
+      editable: true,
+      renderCell: (params) => (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-evenly",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
+          <IconButton
+            aria-label="delete"
+            color="success"
+            onClick={() => updateCategory(params)}
+          >
+            <UpdateIcon />
+          </IconButton>
+          <IconButton
+            aria-label="delete"
+            color="error"
+            onClick={() => deleteCategory(params)}
+          >
+            <DeleteForeverIcon />
+          </IconButton>
+        </div>
+      ),
+    },
+  ];
 
   const handleChangeCategoryInput = (event) => {
     setCategoryInput(event.target.value);
   };
 
-
   async function createCategory(category) {
+    try {
+      const response = await axios.post("http://localhost:3000/api/category", {
+        nome: category,
+      });
+      setCategories([...categories, response.data]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function updateCategory(category) {
+    const { id, nome } = category.row;
 
     try {
-      const response = await axios.post('http://localhost:3000/api/category',{ nome: category })
-      console.log(response)
+      const response = await axios.put(`http://localhost:3000/api/category`, {
+        id,
+        nome,
+      });
+      console.log(response);
     } catch (error) {
-      console.log(error)
+      console.log(error);
+    }
+  }
+
+  async function deleteCategory(category) {
+    const { id } = category.row;
+    try {
+      const response = await axios.delete(`http://localhost:3000/api/category?id=${id}`);
+      setCategories(categories.filter((category) => category.id !== id));
+    } catch (error) {
+      console.log(error);
     }
   }
   return (
@@ -181,29 +283,80 @@ function DashboardContent() {
           <Toolbar />
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={12} lg={12}>
+              <Grid
+                item
+                xs={12}
+                md={12}
+                lg={12}
+                sx={{ display: "flex", justifyContent: "center" }}
+              >
                 <Paper
                   sx={{
                     p: 5,
                     display: "flex",
-                    flexDirection: "row",
+                    flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    height: 200,
-                    width: "70%",
+                    height: 700,
+                    width: "80%",
                   }}
                 >
-                  <TextField
-                    id="categoriaInput"
-                    label="Categoria"
-                    variant="filled"
-                    onChange={handleChangeCategoryInput}
-                    value={categoryInput}
-                    sx={{ width: "60%" }}
-                  />
-                  <Button variant="contained" color="success" onClick={() => createCategory(categoryInput)} sx={{marginLeft: 8}}>
-                    Enviar
-                  </Button>
+                  <Typography variant="h4">Criar categoria</Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "70%",
+                
+                      marginTop: 3,
+                    }}  
+                  >
+                    <TextField
+                      id="categoriaInput"
+                      label="Categoria"
+                      variant="filled"
+                      onChange={handleChangeCategoryInput}
+                      value={categoryInput}
+                      sx={{ width: "100%" }}
+                    />
+                    <Button
+                      variant="contained"
+                      color="success"
+                      onClick={() => createCategory(categoryInput)}
+                      sx={{ marginLeft: 6 }}
+                    >
+                      CRIAR
+                    </Button>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      width: "100%",
+                      height: "100%",
+                      marginTop: 6,
+                    }}
+                  >
+                    <Typography variant="h4">Gerenciar categorias</Typography>
+                    <DataGrid
+                      rows={categories}
+                      columns={columns}
+                      apiRef={apiRef}
+                      initialState={{
+                        pagination: {
+                          paginationModel: {
+                            pageSize: 5,
+                          },
+                        },
+                      }}
+                      sx={{ width: "100%", height: "100%", marginTop: 3 }}
+                      pageSizeOptions={[5]}
+                      disableRowSelectionOnClick
+                    />
+                  </Box>
                 </Paper>
               </Grid>
             </Grid>
@@ -213,8 +366,4 @@ function DashboardContent() {
       </Box>
     </ThemeProvider>
   );
-}
-
-export default function Dashboard() {
-  return <DashboardContent />;
 }
