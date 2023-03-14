@@ -2,6 +2,7 @@ package com.market.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -25,19 +26,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        httpSecurity.csrf().disable();
         httpSecurity.cors().configurationSource(corsConfigurationSource());
         httpSecurity.authorizeHttpRequests((requests) -> requests
+                .requestMatchers(PUBLIC_ENDPOINTS)
+                .permitAll()
                 .anyRequest()
                 .authenticated()
         ).httpBasic().disable();
 
         return httpSecurity.build();
-    }
-
-    /** Remover qnd implementar authentication, authorization */
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web -> web.ignoring().requestMatchers(PUBLIC_ENDPOINTS));
     }
 
     private CorsConfigurationSource corsConfigurationSource() {
