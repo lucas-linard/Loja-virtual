@@ -85,6 +85,11 @@ public class ProdutoService {
         return ProdutoDTO.fromProdutoEntity(produto);
     }
 
+    public void delete(String id) {
+        findById(id);
+        produtoRepository.deleteById(id);
+    }
+
     private void updateData(Produto oldInstance, ProdutoCreateDTO newInstance) {
         oldInstance.setNome(newInstance.getNome());
         oldInstance.setPreco(newInstance.getPreco());
