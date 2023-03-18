@@ -18,7 +18,8 @@ public class SecurityConfig {
 
     /** Ajustar o array qnd implementar authentication, authorization */
     private static final String[] PUBLIC_ENDPOINTS = {
-      "/categorias/**"
+        "/categorias/**",
+        "/produtos/**"
     };
 
     @Bean
