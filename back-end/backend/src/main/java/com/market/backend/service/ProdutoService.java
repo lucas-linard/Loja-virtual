@@ -1,6 +1,7 @@
 package com.market.backend.service;
 
 import com.market.backend.dto.CategoriaDTO;
+import com.market.backend.dto.ImageStringDTO;
 import com.market.backend.dto.ProdutoDTO;
 import com.market.backend.dto.create.ProdutoCreateDTO;
 import com.market.backend.model.Categoria;
@@ -11,7 +12,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,6 +28,8 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
     private final CategoriaService categoriaService;
+
+    private static final String FOLDER_PATH = "C:\\temp\\loja-virtual-images\\";
 
     public ProdutoService(ProdutoRepository produtoRepository, CategoriaService categoriaService) {
         this.produtoRepository = produtoRepository;
@@ -51,6 +60,22 @@ public class ProdutoService {
         return ProdutoDTO.fromProdutoEntity(produto);
     }
 
+    public ImageStringDTO uploadImage(MultipartFile file) throws IOException {
+        Path path = Paths.get(FOLDER_PATH + file.getOriginalFilename());
+        if (Files.exists(path)) {
+            throw new RuntimeException("File alredy exists!");
+        }
+
+        try {
+            file.transferTo(new File(FOLDER_PATH + file.getOriginalFilename()));
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            throw new RuntimeException("Erro ao salvar a imagem.");
+        }
+
+        return new ImageStringDTO(FOLDER_PATH + file.getOriginalFilename());
+    }
+
     private List<ProdutoDTO> getDtoListByPage(Page<Produto> produtoPage) {
         return produtoPage.get()
                 .map(produto -> ProdutoDTO.fromProdutoEntity(produto))
@@ -69,7 +94,7 @@ public class ProdutoService {
                 null,
                 produtoCreateDTO.getNome(),
                 produtoCreateDTO.getPreco(),
-                null,
+                produtoCreateDTO.getImageUrl(),
                 produtoCreateDTO.getQuantidade(),
                 produtoCreateDTO.getDescricao(),
                 produtoCreateDTO.getDesconto(),

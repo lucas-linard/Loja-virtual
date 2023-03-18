@@ -13,6 +13,7 @@ public class ProdutoCreateDTO implements Serializable {
 
     private String nome;
     private Double preco;
+    private String imageUrl;
     private Integer quantidade;
     private String descricao;
     private Integer desconto;
@@ -24,9 +25,10 @@ public class ProdutoCreateDTO implements Serializable {
 
     }
 
-    public ProdutoCreateDTO(String nome, Double preco, Integer quantidade, String descricao, Integer desconto, ETipo tipo, List<String> categoriaIds, Variacao variacao) {
+    public ProdutoCreateDTO(String nome, Double preco, String imageUrl, Integer quantidade, String descricao, Integer desconto, ETipo tipo, List<String> categoriaIds, Variacao variacao) {
         this.nome = nome;
         this.preco = preco;
+        this.imageUrl = imageUrl;
         this.quantidade = quantidade;
         this.descricao = descricao;
         this.desconto = desconto;
@@ -49,6 +51,14 @@ public class ProdutoCreateDTO implements Serializable {
 
     public void setPreco(Double preco) {
         this.preco = preco;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Integer getQuantidade() {
