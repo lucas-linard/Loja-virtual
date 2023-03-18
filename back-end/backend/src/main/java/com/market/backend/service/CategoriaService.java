@@ -62,7 +62,7 @@ public class CategoriaService {
                 .collect(Collectors.toList());
     }
 
-    private Categoria fromDto(CategoriaDTO categoriaDTO) {
+    public Categoria fromDto(CategoriaDTO categoriaDTO) {
         return new Categoria(categoriaDTO.getId(), categoriaDTO.getNome());
     }
 

@@ -47,4 +47,10 @@ public class ProdutoController {
         ImageStringDTO imageStringDTO = produtoService.uploadImage(file);
         return ResponseEntity.ok(imageStringDTO);
     }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<ProdutoDTO> update(@PathVariable String id, @RequestBody ProdutoCreateDTO produtoDTO) {
+        ProdutoDTO response = produtoService.update(id, produtoDTO);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -76,6 +76,27 @@ public class ProdutoService {
         return new ImageStringDTO(FOLDER_PATH + file.getOriginalFilename());
     }
 
+    public ProdutoDTO update(String id, ProdutoCreateDTO newProdutoCreateDTO) {
+        ProdutoDTO produtoDtoOld = findById(id);
+        Produto produto = fromProdutoDto(produtoDtoOld);
+
+        updateData(produto, newProdutoCreateDTO);
+        produto = produtoRepository.save(produto);
+        return ProdutoDTO.fromProdutoEntity(produto);
+    }
+
+    private void updateData(Produto oldInstance, ProdutoCreateDTO newInstance) {
+        oldInstance.setNome(newInstance.getNome());
+        oldInstance.setPreco(newInstance.getPreco());
+        oldInstance.setImageUrl(newInstance.getImageUrl());
+        oldInstance.setQuantidade(newInstance.getQuantidade());
+        oldInstance.setDescricao(newInstance.getDescricao());
+        oldInstance.setDesconto(newInstance.getDesconto());
+        oldInstance.setTipo(newInstance.getTipo());
+        oldInstance.setCategorias(getCategoriasFromDto(newInstance));
+        oldInstance.setVariacao(newInstance.getVariacao());
+    }
+
     private List<ProdutoDTO> getDtoListByPage(Page<Produto> produtoPage) {
         return produtoPage.get()
                 .map(produto -> ProdutoDTO.fromProdutoEntity(produto))
@@ -83,12 +104,7 @@ public class ProdutoService {
     }
 
     private Produto fromProdutoCreateDto(ProdutoCreateDTO produtoCreateDTO) {
-        List<Categoria> categorias = new ArrayList<>();
-
-        for (String id : produtoCreateDTO.getCategoriaIds()) {
-            CategoriaDTO categoriaDTO = categoriaService.findById(id);
-            categorias.add(new Categoria(categoriaDTO.getId(), categoriaDTO.getNome()));
-        }
+        List<Categoria> categorias = getCategoriasFromDto(produtoCreateDTO);
 
         return new Produto(
                 null,
@@ -102,5 +118,37 @@ public class ProdutoService {
                 categorias,
                 produtoCreateDTO.getVariacao()
         );
+    }
+
+    private Produto fromProdutoDto(ProdutoDTO produtoDTO) {
+        List<Categoria> categorias = new ArrayList<>();
+
+        produtoDTO.getCategorias().forEach(categoriaDTO -> {
+            categorias.add(categoriaService.fromDto(categoriaDTO));
+        });
+
+        return new Produto(
+                produtoDTO.getId(),
+                produtoDTO.getNome(),
+                produtoDTO.getPreco(),
+                produtoDTO.getImageUrl(),
+                produtoDTO.getQuantidade(),
+                produtoDTO.getDescricao(),
+                produtoDTO.getDesconto(),
+                produtoDTO.getTipo(),
+                categorias,
+                produtoDTO.getVariacao()
+        );
+    }
+
+    private List<Categoria> getCategoriasFromDto(ProdutoCreateDTO produtoCreateDTO) {
+        List<Categoria> categorias = new ArrayList<>();
+
+        for (String id : produtoCreateDTO.getCategoriaIds()) {
+            CategoriaDTO categoriaDTO = categoriaService.findById(id);
+            categorias.add(new Categoria(categoriaDTO.getId(), categoriaDTO.getNome()));
+        }
+
+        return categorias;
     }
 }
