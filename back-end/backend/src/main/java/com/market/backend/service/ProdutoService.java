@@ -4,6 +4,8 @@ import com.market.backend.dto.CategoriaDTO;
 import com.market.backend.dto.ImageStringDTO;
 import com.market.backend.dto.ProdutoDTO;
 import com.market.backend.dto.create.ProdutoCreateDTO;
+import com.market.backend.exceptions.exceptions.DuplicatedImageException;
+import com.market.backend.exceptions.exceptions.NotFoundException;
 import com.market.backend.model.Categoria;
 import com.market.backend.model.Produto;
 import com.market.backend.model.enums.ETipo;
@@ -45,7 +47,7 @@ public class ProdutoService {
 
     public ProdutoDTO findById(String id) {
         return ProdutoDTO.fromProdutoEntity(produtoRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("Not found!")
+                () -> new NotFoundException("Não encontrado. Id: " + id)
         ));
     }
 
@@ -63,7 +65,7 @@ public class ProdutoService {
     public ImageStringDTO uploadImage(MultipartFile file) throws IOException {
         Path path = Paths.get(FOLDER_PATH + file.getOriginalFilename());
         if (Files.exists(path)) {
-            throw new RuntimeException("File alredy exists!");
+            throw new DuplicatedImageException("Path da imagem: " + FOLDER_PATH + file.getOriginalFilename());
         }
 
         try {

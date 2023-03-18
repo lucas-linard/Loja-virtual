@@ -1,6 +1,7 @@
 package com.market.backend.service;
 
 import com.market.backend.dto.CategoriaDTO;
+import com.market.backend.exceptions.exceptions.NotFoundException;
 import com.market.backend.model.Categoria;
 import com.market.backend.repository.CategoriaRepository;
 import org.springframework.data.domain.Page;
@@ -30,7 +31,7 @@ public class CategoriaService {
     public CategoriaDTO findById(String id) {
         return CategoriaDTO.fromCategoriaEntity(categoriaRepository
                 .findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found!")));
+                .orElseThrow(() -> new NotFoundException("Não encontrado. Id: " + id)));
     }
 
     public CategoriaDTO create(CategoriaDTO categoriaDTO) {
