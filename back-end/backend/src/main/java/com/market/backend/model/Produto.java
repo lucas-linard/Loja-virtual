@@ -30,7 +30,7 @@ public class Produto implements Serializable {
 
     }
 
-    public Produto(String id, String nome, Double preco, String imageUrl, Integer quantidade, String descricao, Integer desconto, boolean active, ETipo tipo, List<Categoria> categorias, Variacao variacao) {
+    public Produto(String id, String nome, Double preco, String imageUrl, Integer quantidade, String descricao, Integer desconto, ETipo tipo, List<Categoria> categorias, Variacao variacao) {
         this.id = id;
         this.nome = nome;
         this.preco = preco;
@@ -38,7 +38,6 @@ public class Produto implements Serializable {
         this.quantidade = quantidade;
         this.descricao = descricao;
         this.desconto = desconto;
-        this.active = active;
         this.tipo = tipo;
         this.categorias = categorias;
         this.variacao = variacao;
