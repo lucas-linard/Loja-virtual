@@ -9,6 +9,8 @@ O documento está dividido pelos métodos HTTP na seguinte ordem:
 
 Cada método contém a sequência de passos necessárias para performar sua respectiva ação, pois algumas rotinas (de criação por exemplo) dependem de mais de 1 ***endpoint***.
 
+***Necessário criar uma pasta com nome "loja-virtual-images" no PATH:*** C:\temp (se não tiver a pasta temp, cria tbm).
+
 ## GET
 
 ### Find All
