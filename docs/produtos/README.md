@@ -170,7 +170,7 @@ A criação do produto é dividida em duas etapas:
 - A primeira etapa é fazer o upload da imagem do produto no servidor. Quando fizer o upload da imagem, o servidor irá retornar o PATH da imagem, que deve ser utilizado no atributo **imageUrl** do objeto que será enviado no corpo da criação do produto.
 - A segunda etapa é cadastrar o produto propriamente. Como informado na etapa anterior, aqui você usa o **imgeUrl** da resposta do servidor no objeto que será enviado no corpo da requisição. Para essa etapa, utilize o ***Find All*** das categorias para serem selecionadas na criação do produto também.
 
-Upload da imagem. ***POST*** no endpoint:
+Upload da imagem. ***POST*** no endpoint (o nome do form-data que a imagem virá é: "file"):
 
 | http://localhost:8080/produtos/upload-image
 
