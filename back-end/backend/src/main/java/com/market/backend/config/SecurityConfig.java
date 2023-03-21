@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -19,14 +18,18 @@ public class SecurityConfig {
 
     /** Ajustar o array qnd implementar authentication, authorization */
     private static final String[] PUBLIC_ENDPOINTS = {
-      "/categorias/**"
+        "/categorias/**",
+        "/produtos/**"
     };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        httpSecurity.csrf().disable();
         httpSecurity.cors().configurationSource(corsConfigurationSource());
         httpSecurity.authorizeHttpRequests((requests) -> requests
+                .requestMatchers(PUBLIC_ENDPOINTS)
+                .permitAll()
                 .anyRequest()
                 .authenticated()
         ).httpBasic().disable();
@@ -34,20 +37,12 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-    /** Remover qnd implementar authentication, authorization */
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web -> web.ignoring().requestMatchers(PUBLIC_ENDPOINTS));
-    }
-
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
         corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
         corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
-        corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setMaxAge(3600L);
-//        corsConfiguration.setExposedHeaders(Collections.singletonList("Authorization"));
+        corsConfiguration.setExposedHeaders(Collections.singletonList("Authorization"));
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
