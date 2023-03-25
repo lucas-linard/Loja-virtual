@@ -123,9 +123,7 @@ export default function CriarProduto({ categorias }) {
       return request;
     });
 
-    await axios.postForm('http://localhost:8080/produtos/upload-image', {
-      'file': data
-    },
+    await axios.post('http://localhost:8080/produtos/upload-image', data,
     {
       headers: {
         'Content-Type': 'multipart/form-data'
