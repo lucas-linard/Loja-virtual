@@ -9,25 +9,6 @@ import FileList from "../../components/FileList";
 function App() {
   const [uploadedFiles, setUploadedFiles] = useState([]);
 
-  // useEffect(() => {
-  //   async function loadUploadedFiles() {
-  //     const response = await api.get("posts");
-
-  //     setUploadedFiles(
-  //       response.data.map((file) => ({
-  //         id: file._id,
-  //         name: file.name,
-  //         readableSize: filesize(file.size),
-  //         preview: file.url,
-  //         uploaded: true,
-  //         url: file.url,
-  //       }))
-  //     );
-  //   }
-
-  //   loadUploadedFiles();
-  // }, []);
-
   function handleUpload(files) {
     const newFiles = files.map((file) => ({
       file,

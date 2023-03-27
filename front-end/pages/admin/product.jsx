@@ -59,6 +59,7 @@ function Copyright(props) {
 }
 
 export default function CriarProduto({ categorias }) {
+  console.log(categorias)
   const router = useRouter()
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [tagsInput, setTagsInput] = useState('')
@@ -70,7 +71,7 @@ export default function CriarProduto({ categorias }) {
     descricao: "",
     categoria: "",
     nomeVar: "",
-    variacoes: [],
+    variacao: { nome: '', variacoes: [] },
     imageUri: "",
     quantidade: 0,
     tipo: "Físico",
@@ -103,8 +104,8 @@ export default function CriarProduto({ categorias }) {
         desconto: 0,
         quantidade: 1,
         categoria: "",
-        imageUri: "",
-        tipo: "Físico"
+        tipo: "FISICO",
+        imageUrl: ""
       });
       setFormError(false);
     } else {
@@ -114,22 +115,24 @@ export default function CriarProduto({ categorias }) {
 
   async function processUpload(uploadedFile) {
     const data = new FormData();
-
-    data.append("file", uploadedFile.file, uploadedFile.name);
-    console.log(data)
-
-    axios.interceptors.request.use(request => {
-      console.log('Request data:', request.data);
-      return request;
-    });
-
-    await axios.post('http://localhost:8080/produtos/upload-image', data,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+    try {
+      if (!!uploadedFile) {
+        data.append("file", uploadedFile.file, uploadedFile.name);
+        const res = await axios.post('http://localhost:8080/produtos/upload-image', data);
+        product.imageUrl = res.data.imageUrl
       }
+
+      const catIds = categorias.find((cat) => cat.nome == product.categoria)
+
+      product.variacao.nome = product.nomeVar
+      product.variacao.variacoes = tagsCollection
+      product.categoriaIds = [catIds?.id]
+
+      await axios.post('http://localhost:8080/produtos', product)
+
+    } catch (error) {
+      console.log(error)
     }
-    );
 
   }
 
@@ -225,7 +228,7 @@ export default function CriarProduto({ categorias }) {
                   label="Preço"
                   name="preco"
                   type="number"
-                  value={product.preco}
+                  value={parseFloat(product.preco)}
                   onChange={handleChange}
                   margin="normal"
                   required
@@ -244,7 +247,7 @@ export default function CriarProduto({ categorias }) {
                 <TextField
                   label="Desconto"
                   name="desconto"
-                  value={product.desconto}
+                  value={parseFloat(product.desconto)}
                   onChange={handleChange}
                   margin="normal"
                   InputProps={{
@@ -264,7 +267,7 @@ export default function CriarProduto({ categorias }) {
                   label="Quantidade"
                   name="quantidade"
                   type="number"
-                  value={product.quantidade}
+                  value={parseInt(product.quantidade)}
                   onChange={handleChange}
                   margin="normal"
                   required
@@ -333,8 +336,8 @@ export default function CriarProduto({ categorias }) {
                     value={product.tipo}
                     onChange={handleChange}
                   >
-                    <FormControlLabel name="tipo" value="Físico" control={<Radio />} label="Físico" />
-                    <FormControlLabel name="tipo" value="Digital" control={<Radio />} label="Digital" />
+                    <FormControlLabel name="tipo" value="FISICO" control={<Radio />} label="Físico" />
+                    <FormControlLabel name="tipo" value="DIGITAL" control={<Radio />} label="Digital" />
                   </RadioGroup>
                 </FormControl>
 
