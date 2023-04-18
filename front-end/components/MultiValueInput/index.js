@@ -3,11 +3,11 @@ import {
       FormControl,
       Input,
   } from "@mui/material";
-  import React, { useEffect, useState } from "react";
+  import React, { useEffect } from "react";
 
   
   
-  export default function App({inputValue, onInputChange ,items, onAdd, onDelete}) {
+  export default function App({inputValue, onInputChange ,items, onAdd, onDelete, ...rest}) {
       const handleKeyUp = (e) => {
           if (e.keyCode == 32) {
               //onAdd((oldState) => oldState);
@@ -38,7 +38,7 @@ import {
 					))}
 				</div>
 				<Input  
-                    placeholder='Variações'
+          placeholder='Variações'
 					value={inputValue}
 					onChange={handleChange}
 					onKeyDown={handleKeyUp}
