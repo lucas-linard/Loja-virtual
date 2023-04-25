@@ -14,9 +14,8 @@ import {
   InputAdornment,
   TextField,
   Button,
-  Alert,
   MenuItem,
-  Card, CardMedia
+ CardMedia
 } from "@mui/material";
 
 import Radio from '@mui/material/Radio';
@@ -27,7 +26,7 @@ import FormLabel from '@mui/material/FormLabel';
 import PercentIcon from '@mui/icons-material/Percent';
 import { AttachMoney as AttachMoneyIcon } from "@mui/icons-material";
 import axios from "axios";
-
+import { SnackbarProvider, enqueueSnackbar } from 'notistack';
 import AdminLayout from "../../../components/AdminLayout";
 import MultiValueInput from "../../../components/MultiValueInput";
 import Upload from '../../../components/Upload'
@@ -107,14 +106,12 @@ const { register, handleSubmit, formState: { errors } } = useForm({
       url: null,
     }));
 
-    setUploadedFiles([...uploadedFiles, ...newFiles]);
+    setUploadedFiles([ ...newFiles]);
 
     // newFiles.forEach(processUpload);
   }
 
   function handleDelete(id) {
-    //await api.delete(`posts/${id}`);
-
     setUploadedFiles((prevState) =>
       prevState.filter((file) => file.id !== id)
     );
@@ -147,13 +144,17 @@ const { register, handleSubmit, formState: { errors } } = useForm({
       form.quantidade = parseInt(form.quantidade) 
     
       await axios.put(`http://localhost:8080/produtos/${product.id}`, form)
+      router.push('/admin/products/management')
+      enqueueSnackbar('Produto atualizado com sucesso!', { variant: 'success' })
     } catch (error) {
-      console.log(error)
+      enqueueSnackbar('Erro ao atualizar produto!', { variant: 'error' })
     }
   }
   return (
     <AdminLayout router={router}>
+      <SnackbarProvider/>
       <Container  sx={{ mt: 4, mb: 4 }}>
+        {errors && <Typography variant="h4">Erros</Typography>}
         <Grid container spacing={3}>
           <Grid
             item
@@ -203,7 +204,7 @@ const { register, handleSubmit, formState: { errors } } = useForm({
                   margin="normal"
                   required
                   sx={{ width: "80%" }}
-                  {...register("nome")}
+                  {...register("nome", { required: true})}
                 />
 
                 <TextField
@@ -234,7 +235,7 @@ const { register, handleSubmit, formState: { errors } } = useForm({
                     ),
                   }}
                   sx={{ width: "80%" }}
-                  {...register("preco")}
+                  {...register("preco",{ required: true})}
                 />
                 <TextField
                   label="Desconto"
@@ -251,7 +252,7 @@ const { register, handleSubmit, formState: { errors } } = useForm({
                     ),
                   }}
                   sx={{ width: "80%" }}
-                  {...register("desconto")}
+                  {...register("desconto",{ required: true})}
                 />
 
                 <TextField
@@ -267,7 +268,7 @@ const { register, handleSubmit, formState: { errors } } = useForm({
                     ),
                   }}
                   sx={{ width: "80%" }}
-                  {...register("quantidade")}
+                  {...register("quantidade",{ required: true})}
                 />
 
                 <TextField
@@ -279,7 +280,7 @@ const { register, handleSubmit, formState: { errors } } = useForm({
                   helperText="Selecione uma categoria"
                   sx={{ width: "80%" }}
                   defaultValue={product.categorias[0].nome}
-                  {...register("categoria")}
+                  {...register("categoria",{ required: true})}
                 >
                   {categories.map((option) => (
                     <MenuItem key={option.id} value={option.nome}>
@@ -304,9 +305,9 @@ const { register, handleSubmit, formState: { errors } } = useForm({
                   items={tagsCollection}
                 />
 
-                <Upload
+               { !uploadedFiles.length && <Upload
                   onUpload={handleUpload}
-                />
+                />}
                 {!!uploadedFiles.length && (
                   <FileList files={uploadedFiles}
                     onDelete={handleDelete}
@@ -339,7 +340,6 @@ const { register, handleSubmit, formState: { errors } } = useForm({
               </Button>
               </Box>
             <CardMedia image={product.image} alt="Minha Imagem" sx={{ width:300, height: 300 }} />
-            
             </Paper>
           </Grid>
         </Grid>

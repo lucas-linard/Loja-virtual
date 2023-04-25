@@ -12,7 +12,7 @@ import ModeEditIcon from "@mui/icons-material/ModeEdit";
 import { Button, TextField } from "@mui/material";
 import axios from "axios";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
-
+import { SnackbarProvider, enqueueSnackbar } from 'notistack';
 import AdminLayout from "../../../components/AdminLayout";
 
 export async function getServerSideProps() {
@@ -128,8 +128,9 @@ export default function DashboardContent({ data }) {
         nome: category,
       });
       setCategories([...categories, response.data]);
+      enqueueSnackbar('Categoria criada com sucesso!', { variant: 'success' }); 
     } catch (error) {
-      console.log(error);
+      enqueueSnackbar('Erro ao criar categoria!', { variant: 'error' });
     }
   }
 
@@ -141,23 +142,25 @@ export default function DashboardContent({ data }) {
         id,
         nome,
       });
-      console.log(response);
+      enqueueSnackbar('Categoria atualizada com sucesso!', { variant: 'success' });
     } catch (error) {
-      console.log(error);
+      enqueueSnackbar('Erro ao atualizar categoria!', { variant: 'error' });
     }
   }
 
   async function deleteCategory(category) {
     const { id } = category.row;
     try {
-      const response = await axios.delete(`http://localhost:3000/api/category?id=${id}`);
+      await axios.delete(`http://localhost:3000/api/category?id=${id}`);
       setCategories(categories.filter((category) => category.id !== id));
+      enqueueSnackbar('Categoria deletada com sucesso!', { variant: 'success' });
     } catch (error) {
-      console.log(error);
+      enqueueSnackbar('Erro ao deletar categoria!', { variant: 'error' });
     }
   }
   return (
     <AdminLayout>
+      <SnackbarProvider/>
           <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Grid container spacing={3}>
               <Grid

@@ -27,7 +27,14 @@ import PeopleIcon from '@mui/icons-material/People';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import LayersIcon from '@mui/icons-material/Layers';
 import AssignmentIcon from '@mui/icons-material/Assignment';
-
+import Accordion from '@mui/material/Accordion';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import SellIcon from '@mui/icons-material/Sell';
+import CategoryIcon from '@mui/icons-material/Category';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 const drawerWidth = 240;
 
 const AppBar = styled(MuiAppBar, {
@@ -79,16 +86,24 @@ const mdTheme = createTheme();
 export default function AdminLayout({ children }) {
     const router = useRouter()
     const [open, setOpen] = React.useState(true);
+    const [openLoader, setOpenLoader] = React.useState(false);
     const toggleDrawer = () => {
         setOpen(!open);
     };
 
     function handleRedirect(path) {
+        setOpenLoader(true)
         router.push(path)
     }
 
     return (
         <ThemeProvider theme={mdTheme}>
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={openLoader}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
             <Box sx={{ display: "flex" }}>
                 <CssBaseline />
                 <AppBar position="absolute" open={open}>
@@ -140,65 +155,47 @@ export default function AdminLayout({ children }) {
                     </Toolbar>
                     <Divider />
                     <List component="nav">
-                        <ListItemButton
-                            onClick={() => handleRedirect('/admin/product')}
+                        <Accordion
+
+                            sx={{ flexDirection: 'row-reverse' }}
                         >
-                            <ListItemIcon>
-                                <DashboardIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Produtos" />
-                        </ListItemButton>
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                            >
+                                <SellIcon color="primary" sx={{ marginRight: 4 }} />
+                                <Typography>Produtos</Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <ListItemButton
+                                    onClick={() => handleRedirect('/admin/products/management')}
+                                >
+                                    <ListItemIcon>
+                                        <DashboardIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Painel" />
+                                </ListItemButton>
+
+                                <ListItemButton
+                                    onClick={() => handleRedirect('/admin/products/create')}
+                                >
+                                    <ListItemIcon>
+                                        <ShoppingCartIcon />
+                                    </ListItemIcon>
+                                    <ListItemText primary="Novo" />
+                                </ListItemButton>
+                            </AccordionDetails>
+                        </Accordion>
+
 
                         <ListItemButton
                             onClick={() => handleRedirect('/admin/category')}
                         >
                             <ListItemIcon>
-                                <ShoppingCartIcon />
+                                <CategoryIcon />
                             </ListItemIcon>
                             <ListItemText primary="Categorias" />
-                        </ListItemButton>
-
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <PeopleIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Customers" />
-                        </ListItemButton>
-
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <BarChartIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Reports" />
-                        </ListItemButton>
-
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <LayersIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Integrations" />
-                        </ListItemButton>
-                        <Divider sx={{ my: 1 }} />
-                        <ListSubheader component="div" inset>
-                            Saved reports
-                        </ListSubheader>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <AssignmentIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Current month" />
-                        </ListItemButton>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <AssignmentIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Last quarter" />
-                        </ListItemButton>
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <AssignmentIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Year-end sale" />
                         </ListItemButton>
                     </List>
                 </Drawer>

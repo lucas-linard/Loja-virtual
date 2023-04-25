@@ -3,6 +3,8 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";;
 import IconButton from "@mui/material/IconButton";
 import Container from "@mui/material/Container";
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import Link from "@mui/material/Link";
@@ -13,16 +15,18 @@ import { Card, CardMedia, Button } from "@mui/material";
 import axios from "axios";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import AdminLayout from "../../../components/AdminLayout";
-import ImageIcon from '@mui/icons-material/Image';
+import { SnackbarProvider, enqueueSnackbar } from 'notistack';
 import { useRouter } from "next/router";
 export async function getServerSideProps() {
   const fs = require('fs')
   const res = await axios.get("http://localhost:8080/produtos");
   const data = res.data.content;
   data.map((item) => {
-    let imageData = fs.readFileSync(item.imageUrl);
-    let base64Image = Buffer.from(imageData).toString('base64');
-    item.imageUrl = `data:image/jpeg;base64,${base64Image}`;
+    if (item.imageUrl) {
+      let imageData = fs.readFileSync(item.imageUrl);
+      let base64Image = Buffer.from(imageData).toString('base64');
+      item.imageUrl = `data:image/jpeg;base64,${base64Image}`;
+    }
   })
   return { props: { data } };
 }
@@ -51,14 +55,10 @@ function Copyright(props) {
 
 
 export default function DashboardContent({ data }) {
-  const [categoryInput, setCategoryInput] = React.useState("");
   const [categories, setCategories] = React.useState(data);
+  const [openLoader, setOpenLoader] = React.useState(false);
   const router = useRouter()
   const apiRef = useGridApiRef();
-  const [open, setOpen] = React.useState(true);
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
 
   const columns = [
     {
@@ -70,7 +70,7 @@ export default function DashboardContent({ data }) {
       renderCell: (params) => {
         return (
           <Card>
-            <CardMedia image={params.row.imageUrl} alt="Minha Imagem" sx={{ width: 150, height: 150 }} />
+            <CardMedia image={params.row.imageUrl ? params.row.imageUrl : "https://betarill.com/media/images/products/default_product.png"} alt="Minha Imagem" sx={{ width: 150, height: 150 }} />
           </Card>
         );
       },
@@ -105,35 +105,26 @@ export default function DashboardContent({ data }) {
       width: 100,
       editable: false,
     },
-    // {
-    //   field: "categorias",
-    //   headerName: "categorias",
-    //   width: 100,
-    //   editable: false,
-    //   renderCell: (params) => {
-    //     let cat = params.row.categorias.reduce((acc,cur) => acc += cur.nome)
-    //   }
-    // },
     {
       field: "id",
       headerName: "Ações",
       width: 300,
       editable: false,
       renderCell: (params) => {
-        
+
         return (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            width: "100%",
-          }}
-        >
-           <IconButton
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <IconButton
               variant="contained"
-              onClick={() =>
-                {
-                  router.push({
+              onClick={() => {
+                setOpenLoader(true);
+                router.push({
                   pathname: '/admin/products/update',
                   query: { id: params.row.id },
                 })
@@ -142,15 +133,16 @@ export default function DashboardContent({ data }) {
             >
               <ModeEditIcon />
             </IconButton>
-          {/* <IconButton
-            aria-label="delete"
-            color="error"
-            onClick={() => deleteCategory(params)}
-          >
-            <DeleteForeverIcon />
-          </IconButton> */}
-        </div>
-      )},
+            <IconButton
+              aria-label="delete"
+              color="error"
+              onClick={() => deleteProduct(params.row)}
+            >
+              <DeleteForeverIcon />
+            </IconButton>
+          </div>
+        )
+      },
     },
   ];
 
@@ -168,18 +160,20 @@ export default function DashboardContent({ data }) {
     }
   }
 
-  async function deleteCategory(category) {
-    const { id } = category.row;
+  async function deleteProduct({ id }) {
     try {
-      const response = await axios.delete(`http://localhost:3000/api/category?id=${id}`);
-      setCategories(categories.filter((category) => category.id !== id));
+      await axios.delete(`http://localhost:8080/produtos/${id}`);
+      const newCategories = categories.filter((item) => item.id !== id);
+      setCategories(newCategories);
+      enqueueSnackbar('Produto deletado com sucesso!', { variant: 'success' })
     } catch (error) {
-      console.log(error);
+      enqueueSnackbar('Houve um problema ao deletar produto!', { variant: 'error' })
     }
   }
 
   return (
     <AdminLayout>
+      <SnackbarProvider />
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
           <Grid
@@ -230,6 +224,12 @@ export default function DashboardContent({ data }) {
               </Box>
             </Paper>
           </Grid>
+          <Backdrop
+            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={openLoader}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop>
         </Grid>
         <Copyright sx={{ pt: 4 }} />
       </Container>

@@ -13,8 +13,9 @@ import {
   InputAdornment,
   TextField,
   Button,
-  Alert,
   MenuItem,
+
+
 } from "@mui/material";
 
 import Radio from '@mui/material/Radio';
@@ -25,11 +26,11 @@ import FormLabel from '@mui/material/FormLabel';
 import PercentIcon from '@mui/icons-material/Percent';
 import { AttachMoney as AttachMoneyIcon } from "@mui/icons-material";
 import axios from "axios";
-
-import AdminLayout from "../../components/AdminLayout";
-import MultiValueInput from "../../components/MultiValueInput";
-import Upload from '../../components/Upload'
-import FileList from '../../components/FileList'
+import { SnackbarProvider, enqueueSnackbar } from 'notistack';
+import AdminLayout from "../../../components/AdminLayout";
+import MultiValueInput from "../../../components/MultiValueInput";
+import Upload from '../../../components/Upload'
+import FileList from '../../../components/FileList'
 import { uniqueId } from "lodash";
 import filesize from "filesize";
 
@@ -58,8 +59,8 @@ function Copyright(props) {
   );
 }
 
+
 export default function CriarProduto({ categorias }) {
-  console.log(categorias)
   const router = useRouter()
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [tagsInput, setTagsInput] = useState('')
@@ -87,34 +88,10 @@ export default function CriarProduto({ categorias }) {
     }));
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    // Verificar se todos os campos foram preenchidos
-    const isFormValid = Object.values(product).every(
-      (value) => value !== "" && value !== 0
-    );
-
-    if (isFormValid) {
-      ; // Apenas para fins de demonstração
-      setProduct({
-        nome: "",
-        descricao: "",
-        preco: 0,
-        desconto: 0,
-        quantidade: 1,
-        categoria: "",
-        tipo: "FISICO",
-        imageUrl: ""
-      });
-      setFormError(false);
-    } else {
-      setFormError(true);
-    }
-  };
-
   async function processUpload(uploadedFile) {
     const data = new FormData();
+   
+    
     try {
       if (!!uploadedFile) {
         data.append("file", uploadedFile.file, uploadedFile.name);
@@ -128,10 +105,10 @@ export default function CriarProduto({ categorias }) {
       product.variacao.variacoes = tagsCollection
       product.categoriaIds = [catIds?.id]
 
-      await axios.post('http://localhost:8080/produtos', product)
-
+      const res = await axios.post('http://localhost:8080/produtos', product)
+      enqueueSnackbar('Produto criado com sucesso!', { variant: 'success' });
     } catch (error) {
-      console.log(error)
+      enqueueSnackbar('Não foi possivel criar o produto, Confira os campos\nou tente novamente mais tarde!', { variant: 'error' });
     }
 
   }
@@ -149,7 +126,7 @@ export default function CriarProduto({ categorias }) {
       url: null,
     }));
 
-    setUploadedFiles([...uploadedFiles, ...newFiles]);
+    setUploadedFiles([ ...newFiles]);
 
     // newFiles.forEach(processUpload);
   }
@@ -163,7 +140,8 @@ export default function CriarProduto({ categorias }) {
   }
 
   return (
-    <AdminLayout router={router}>
+    <AdminLayout>
+      <SnackbarProvider/>
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Grid container spacing={3}>
           <Grid
@@ -318,9 +296,9 @@ export default function CriarProduto({ categorias }) {
 
                 </MultiValueInput>
 
-                <Upload
+                { !uploadedFiles.length && <Upload
                   onUpload={handleUpload}
-                />
+                />}
                 {!!uploadedFiles.length && (
                   <FileList files={uploadedFiles}
                     onDelete={handleDelete}
