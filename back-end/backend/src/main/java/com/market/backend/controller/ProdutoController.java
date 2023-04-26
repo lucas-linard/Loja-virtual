@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -35,6 +36,7 @@ public class ProdutoController {
         return ResponseEntity.ok(produtoService.findById(id));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ProdutoDTO> create(@RequestBody ProdutoCreateDTO produtoCreateDTO) {
         ProdutoDTO produtoDTO = produtoService.create(produtoCreateDTO);
@@ -42,18 +44,21 @@ public class ProdutoController {
         return ResponseEntity.created(uri).body(produtoDTO);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PostMapping(value = "/upload-image")
     public ResponseEntity<ImageStringDTO> uploadImage(@RequestParam("file") MultipartFile file) throws IOException {
         ImageStringDTO imageStringDTO = produtoService.uploadImage(file);
         return ResponseEntity.ok(imageStringDTO);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping(value = "/{id}")
     public ResponseEntity<ProdutoDTO> update(@PathVariable String id, @RequestBody ProdutoCreateDTO produtoDTO) {
         ProdutoDTO response = produtoService.update(id, produtoDTO);
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
         produtoService.delete(id);

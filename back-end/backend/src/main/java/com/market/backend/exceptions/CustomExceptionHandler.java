@@ -3,6 +3,7 @@ package com.market.backend.exceptions;
 import com.market.backend.exceptions.exceptions.DuplicatedImageException;
 import com.market.backend.exceptions.exceptions.NotFoundException;
 import com.market.backend.exceptions.exceptions.ProcessImageException;
+import com.market.backend.exceptions.exceptions.UserExistsException;
 import com.market.backend.exceptions.model.DefaultError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -53,5 +54,19 @@ public class CustomExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<DefaultError> userExists(UserExistsException exception,
+                                                   HttpServletRequest request) {
+        DefaultError error = new DefaultError(
+                System.currentTimeMillis(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Username já utilizado.",
+                exception.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
