@@ -23,7 +23,7 @@ Os endpoints de GET de ***Produtos e Categorias*** est√£o liberados, ou seja, n√
 
 ## Logar
 
-**POST** no endpoint: http://localhost:8080/register , com o seguinte corpo:
+**POST** no endpoint: http://localhost:8080/login , com o seguinte corpo:
 
 ```json
 {
