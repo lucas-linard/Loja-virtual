@@ -6,6 +6,7 @@ import com.market.backend.security.JWTUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -33,6 +34,11 @@ public class SecurityConfig {
         "/login"
     };
 
+    private static final String[] PUBLIC_ENDPOINTS_GET = {
+            "/produtos/**",
+            "/categorias/**"
+    };
+
     @Autowired
     private JWTUtils jwtUtils;
 
@@ -46,6 +52,8 @@ public class SecurityConfig {
         httpSecurity.cors().configurationSource(corsConfigurationSource());
         httpSecurity.authorizeHttpRequests((requests) -> requests
                 .requestMatchers(PUBLIC_ENDPOINTS)
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, PUBLIC_ENDPOINTS_GET)
                 .permitAll()
                 .anyRequest()
                 .authenticated()

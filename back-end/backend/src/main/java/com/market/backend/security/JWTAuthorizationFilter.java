@@ -61,6 +61,11 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             return true;
         }
 
+        if ((request.getServletPath().split("/")[1].equals("produtos") && request.getMethod().equals("GET")) ||
+                (request.getServletPath().split("/")[1].equals("categorias") && request.getMethod().equals("GET"))) {
+            return true;
+        }
+
         return false;
     }
 
