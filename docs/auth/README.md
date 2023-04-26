@@ -2,7 +2,11 @@
 
 Documentação da autenticação / autorização.
 
-A partir dessa implementação, todos os endpoints estão protegidos e precisarão do Token para ser utilizados.
+A partir dessa implementação, **todos os endpoints estão protegidos e precisarão do Token para ser utilizados**.
+
+Os endpoints de GET de ***Produtos e Categorias*** estão liberados, ou seja, não precisam de autenticação.
+
+**APENAS O USUÁRIO ADMIN PODE CRIAR PRODUTOS E CATEGORIAS!** O usuário admin sobe via seed do DB, com o *user/pass* **admin/admin**.
 
 ## Criar usuário
 
