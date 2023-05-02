@@ -20,13 +20,8 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import ListSubheader from '@mui/material/ListSubheader';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import PeopleIcon from '@mui/icons-material/People';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import LayersIcon from '@mui/icons-material/Layers';
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import AddIcon from '@mui/icons-material/Add';
 import Accordion from '@mui/material/Accordion';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -164,7 +159,7 @@ export default function AdminLayout({ children }) {
                                 aria-controls="panel1a-content"
                                 id="panel1a-header"
                             >
-                                <SellIcon color="primary" sx={{ marginRight: 4 }} />
+                                <SellIcon color="action" sx={{ marginRight: 4 }} />
                                 <Typography>Produtos</Typography>
                             </AccordionSummary>
                             <AccordionDetails>
@@ -180,8 +175,9 @@ export default function AdminLayout({ children }) {
                                 <ListItemButton
                                     onClick={() => handleRedirect('/admin/products/create')}
                                 >
+                                    
                                     <ListItemIcon>
-                                        <ShoppingCartIcon />
+                                        <AddIcon />
                                     </ListItemIcon>
                                     <ListItemText primary="Novo" />
                                 </ListItemButton>
