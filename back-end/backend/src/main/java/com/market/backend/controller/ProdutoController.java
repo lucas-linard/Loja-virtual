@@ -1,5 +1,6 @@
 package com.market.backend.controller;
 
+import com.market.backend.dto.CategoriaDTO;
 import com.market.backend.dto.ImageStringDTO;
 import com.market.backend.dto.ProdutoDTO;
 import com.market.backend.dto.create.ProdutoCreateDTO;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/produtos")
@@ -24,6 +26,11 @@ public class ProdutoController {
 
     public ProdutoController(ProdutoService produtoService) {
         this.produtoService = produtoService;
+    }
+
+    @GetMapping(value = "/categoria")
+    public ResponseEntity<List<ProdutoDTO>> findByCategoria(@RequestBody CategoriaDTO categoriaDTO) {
+        return ResponseEntity.ok(produtoService.findByCategoria(categoriaDTO));
     }
 
     @GetMapping

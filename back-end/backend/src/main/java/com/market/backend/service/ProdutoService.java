@@ -38,6 +38,14 @@ public class ProdutoService {
         this.categoriaService = categoriaService;
     }
 
+    public List<ProdutoDTO> findByCategoria(CategoriaDTO categoriaDTO) {
+        Categoria categoria = categoriaService.fromDto(categoriaDTO);
+        return produtoRepository.findByCategorias(categoria)
+                .stream()
+                .map(produto -> ProdutoDTO.fromProdutoEntity(produto))
+                .collect(Collectors.toList());
+    }
+
     public Page<ProdutoDTO> findAll(Pageable pageable) {
         Page<Produto> produtoPage = produtoRepository.findAll(pageable);
         List<ProdutoDTO> produtoDTOS = getDtoListByPage(produtoPage);
