@@ -38,8 +38,11 @@ public class ProdutoService {
         this.categoriaService = categoriaService;
     }
 
-    public List<ProdutoDTO> findByCategoria(CategoriaDTO categoriaDTO) {
+    public List<ProdutoDTO> findByCategoria(String categoriaId) {
+        CategoriaDTO categoriaDTO = categoriaService.findById(categoriaId);
+
         Categoria categoria = categoriaService.fromDto(categoriaDTO);
+
         return produtoRepository.findByCategorias(categoria)
                 .stream()
                 .map(produto -> ProdutoDTO.fromProdutoEntity(produto))

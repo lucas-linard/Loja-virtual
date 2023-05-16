@@ -28,9 +28,9 @@ public class ProdutoController {
         this.produtoService = produtoService;
     }
 
-    @GetMapping(value = "/categoria")
-    public ResponseEntity<List<ProdutoDTO>> findByCategoria(@RequestBody CategoriaDTO categoriaDTO) {
-        return ResponseEntity.ok(produtoService.findByCategoria(categoriaDTO));
+    @GetMapping(value = "/categoria/{categoriaId}")
+    public ResponseEntity<List<ProdutoDTO>> findByCategoria(@PathVariable String categoriaId) {
+        return ResponseEntity.ok(produtoService.findByCategoria(categoriaId));
     }
 
     @GetMapping
