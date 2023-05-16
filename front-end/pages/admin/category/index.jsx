@@ -14,7 +14,7 @@ import axios from "axios";
 import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { SnackbarProvider, enqueueSnackbar } from 'notistack';
 import AdminLayout from "../../../components/AdminLayout";
-
+import Cookies from "js-cookie";
 export async function getServerSideProps() {
   const res = await axios.get("http://localhost:8080/categorias");
   const data = res.data.content;
@@ -47,6 +47,8 @@ export default function DashboardContent({ data }) {
   const [categoryInput, setCategoryInput] = React.useState("");
   const [categories, setCategories] = React.useState(data);
 
+  const JWT = Cookies.get("jwt");
+  
   const apiRef = useGridApiRef();
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
@@ -126,6 +128,7 @@ export default function DashboardContent({ data }) {
     try {
       const response = await axios.post("http://localhost:3000/api/category", {
         nome: category,
+        jwt: "Bearer "+JWT,
       });
       setCategories([...categories, response.data]);
       enqueueSnackbar('Categoria criada com sucesso!', { variant: 'success' }); 

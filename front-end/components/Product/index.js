@@ -17,13 +17,8 @@ const StyledCardMedia = styled(CardMedia)({
   objectFit: "cover",
 });
 
-const ProductCard = ({ product }) => {
-  //   const { name, description, imageUrl, price } = product;
-
-  const name = "God Of War";
-  const imageUrl = "https://cdn.ome.lt/fj5ZuT3HW9yNQnrGvROj4njWSNo=/200x0/smart/extras/capas/god-of-war-ragnarok-cover.jpg";
-  const price = 59.99;
-  const discount = 10;
+const ProductCard = ({ name, discount, imageUrl, price }) => {
+  
   const isOnSale = true;
   const priceOnSale = (price * (1 - discount / 100)).toFixed(2);
 
@@ -48,7 +43,7 @@ const ProductCard = ({ product }) => {
               R${price}
             </Typography>
             <Typography fontSize={8.4} sx={{ color: "#00A650", display: "inline" }}>
-              10% OFF
+              {discount}% OFF
             </Typography>
           </Box>
         )}
@@ -65,7 +60,7 @@ const ProductCard = ({ product }) => {
             R${priceOnSale}
           </Typography>
           <Typography fontSize={14} sx={{ color: "#00A650", display: "inline", ml: 1 }}>
-            10% OFF
+          {discount}% OFF
           </Typography>
         </Box>
         {/* valor parcelado */}
