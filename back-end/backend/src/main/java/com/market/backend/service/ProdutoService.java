@@ -138,7 +138,7 @@ public class ProdutoService {
         );
     }
 
-    private Produto fromProdutoDto(ProdutoDTO produtoDTO) {
+    public Produto fromProdutoDto(ProdutoDTO produtoDTO) {
         List<Categoria> categorias = new ArrayList<>();
 
         produtoDTO.getCategorias().forEach(categoriaDTO -> {
