@@ -33,8 +33,8 @@ import Upload from '../../../components/Upload'
 import FileList from '../../../components/FileList'
 import { uniqueId } from "lodash";
 import filesize from "filesize";
-
-
+import Cookies from 'js-cookie';
+import jwt_decode from "jwt-decode";
 export async function getServerSideProps(context) {
   const fs = require('fs')
   try {
@@ -91,7 +91,7 @@ const { register, handleSubmit, formState: { errors } } = useForm({
       categoriaIds: ''
     }
 });
-
+  const JWT = Cookies.get("jwt");
 
   function handleUpload(files) {
     const newFiles = files.map((file) => ({
@@ -131,11 +131,10 @@ const { register, handleSubmit, formState: { errors } } = useForm({
       if (!!uploadedFiles[0]) {
         console.log(uploadedFiles)
         data.append("file", uploadedFiles[0].file, uploadedFiles[0].name);
-        const res = await axios.post('http://localhost:8080/produtos/upload-image', data);
+        const res = await axios.post('http://localhost:8080/produtos/upload-image', data, { headers: { Authorization: `Bearer ${JWT}` } });
         form.imageUrl =res.data.imageUrl
       }
       const catIds = categories.find((cat) => cat.nome == form.categoria)
-      console.log(catIds)
       form.variacao.nome = form.nomeVar
       form.variacao.variacoes = tagsCollection
       form.categoriaIds = [catIds.id]
@@ -143,13 +142,29 @@ const { register, handleSubmit, formState: { errors } } = useForm({
       form.desconto = parseFloat(form.desconto)
       form.quantidade = parseInt(form.quantidade) 
     
-      await axios.put(`http://localhost:8080/produtos/${product.id}`, form)
+      await axios.put(`http://localhost:8080/produtos/${product.id}`, form, { headers: { Authorization: `Bearer ${JWT}` } })
       router.push('/admin/products/management')
       enqueueSnackbar('Produto atualizado com sucesso!', { variant: 'success' })
     } catch (error) {
       enqueueSnackbar('Erro ao atualizar produto!', { variant: 'error' })
     }
   }
+
+  function handleAuthorityRedirect(user) {
+    if (user.authorities !== "ROLE_ADMIN") {
+      router.push("/unauthorized")
+    } 
+  }
+
+  React.useEffect(() => {
+    if (JWT) {
+      const decoded = jwt_decode(JWT);
+      handleAuthorityRedirect(decoded);
+    } else {
+      router.push("/unauthorized")
+    }
+  },[])
+
   return (
     <AdminLayout router={router}>
       <SnackbarProvider/>

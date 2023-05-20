@@ -17,6 +17,8 @@ import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import AdminLayout from "../../../components/AdminLayout";
 import { SnackbarProvider, enqueueSnackbar } from 'notistack';
 import { useRouter } from "next/router";
+import Cookies from "js-cookie";
+import jwt_decode from "jwt-decode";
 export async function getServerSideProps() {
   const fs = require('fs')
   const res = await axios.get("http://localhost:8080/produtos");
@@ -59,7 +61,7 @@ export default function DashboardContent({ data }) {
   const [openLoader, setOpenLoader] = React.useState(false);
   const router = useRouter()
   const apiRef = useGridApiRef();
-
+  const JWT = Cookies.get("jwt");
   const columns = [
     {
       field: "picture",
@@ -146,23 +148,9 @@ export default function DashboardContent({ data }) {
     },
   ];
 
-  async function updateCategory(category) {
-    const { id, nome } = category.row;
-
-    try {
-      const response = await axios.put(`http://localhost:3000/api/category`, {
-        id,
-        nome,
-      });
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   async function deleteProduct({ id }) {
     try {
-      await axios.delete(`http://localhost:8080/produtos/${id}`);
+      await axios.delete(`http://localhost:8080/produtos/${id}`, { headers: { Authorization: `Bearer ${JWT}` } });
       const newCategories = categories.filter((item) => item.id !== id);
       setCategories(newCategories);
       enqueueSnackbar('Produto deletado com sucesso!', { variant: 'success' })
@@ -170,6 +158,21 @@ export default function DashboardContent({ data }) {
       enqueueSnackbar('Houve um problema ao deletar produto!', { variant: 'error' })
     }
   }
+  function handleAuthorityRedirect(user) {
+    console.log(user)
+    if (user.authorities !== "ROLE_ADMIN") {
+      router.push("/unauthorized")
+    }
+  }
+
+  React.useEffect(() => {
+    if (JWT) {
+      const decoded = jwt_decode(JWT);
+      handleAuthorityRedirect(decoded);
+    } else {
+      router.push("/unauthorized")
+    }
+  }, [])
 
   return (
     <AdminLayout>

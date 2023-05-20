@@ -39,7 +39,7 @@ export default function SignIn() {
 
   function handleAuthorityRedirect(user) {
     if (user.authorities === "ROLE_ADMIN") {
-      router.push("/admin/category")
+      router.push("/admin")
     } else {
       router.push("/")
     }

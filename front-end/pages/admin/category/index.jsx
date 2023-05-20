@@ -15,6 +15,8 @@ import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
 import { SnackbarProvider, enqueueSnackbar } from 'notistack';
 import AdminLayout from "../../../components/AdminLayout";
 import Cookies from "js-cookie";
+import jwt_decode from "jwt-decode";
+import { useRouter } from "next/router";
 export async function getServerSideProps() {
   const res = await axios.get("http://localhost:8080/categorias");
   const data = res.data.content;
@@ -46,9 +48,9 @@ function Copyright(props) {
 export default function DashboardContent({ data }) {
   const [categoryInput, setCategoryInput] = React.useState("");
   const [categories, setCategories] = React.useState(data);
-
+  const router = useRouter()
   const JWT = Cookies.get("jwt");
-  
+
   const apiRef = useGridApiRef();
   const [open, setOpen] = React.useState(true);
   const toggleDrawer = () => {
@@ -125,14 +127,15 @@ export default function DashboardContent({ data }) {
   };
 
   async function createCategory(category) {
+    console.log(JWT)
     try {
-      const response = await axios.post("http://localhost:3000/api/category", {
+      const response = await axios.post("http://localhost:8080/categorias", {
         nome: category,
-        jwt: "Bearer "+JWT,
-      });
+      }, { headers: { Authorization: `Bearer ${JWT}` } });
       setCategories([...categories, response.data]);
-      enqueueSnackbar('Categoria criada com sucesso!', { variant: 'success' }); 
+      enqueueSnackbar('Categoria criada com sucesso!', { variant: 'success' });
     } catch (error) {
+      console.log(error)
       enqueueSnackbar('Erro ao criar categoria!', { variant: 'error' });
     }
   }
@@ -141,10 +144,9 @@ export default function DashboardContent({ data }) {
     const { id, nome } = category.row;
 
     try {
-      const response = await axios.put(`http://localhost:3000/api/category`, {
-        id,
-        nome,
-      });
+      const response = await axios.put(`http://localhost:8080/categorias/${id}`, {
+        nome
+      }, { headers: { Authorization: `Bearer ${JWT}` } });
       enqueueSnackbar('Categoria atualizada com sucesso!', { variant: 'success' });
     } catch (error) {
       enqueueSnackbar('Erro ao atualizar categoria!', { variant: 'error' });
@@ -154,97 +156,112 @@ export default function DashboardContent({ data }) {
   async function deleteCategory(category) {
     const { id } = category.row;
     try {
-      await axios.delete(`http://localhost:3000/api/category?id=${id}`);
+      await axios.delete(`http://localhost:8080/categorias/${id}`, { headers: { Authorization: `Bearer ${JWT}` } });
       setCategories(categories.filter((category) => category.id !== id));
       enqueueSnackbar('Categoria deletada com sucesso!', { variant: 'success' });
     } catch (error) {
       enqueueSnackbar('Erro ao deletar categoria!', { variant: 'error' });
     }
   }
+
+  function handleAuthorityRedirect(user) {
+    if (user.authorities !== "ROLE_ADMIN") {
+      router.push("/unauthorized")
+    } 
+  }
+
+  React.useEffect(() => {
+    if (JWT) {
+      const decoded = jwt_decode(JWT);
+      handleAuthorityRedirect(decoded);
+    } else {
+      router.push("/unauthorized")
+    }
+  },[])
   return (
     <AdminLayout>
-      <SnackbarProvider/>
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
-              <Grid
-                item
-                xs={12}
-                md={12}
-                lg={12}
-                sx={{ display: "flex", justifyContent: "center" }}
+      <SnackbarProvider />
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <Grid container spacing={3}>
+          <Grid
+            item
+            xs={12}
+            md={12}
+            lg={12}
+            sx={{ display: "flex", justifyContent: "center" }}
+          >
+            <Paper
+              sx={{
+                p: 5,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                height: 700,
+                width: "80%",
+              }}
+            >
+              <Typography variant="h4">Criar categoria</Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "70%",
+
+                  marginTop: 3,
+                }}
               >
-                <Paper
-                  sx={{
-                    p: 5,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    height: 700,
-                    width: "80%",
-                  }}
+                <TextField
+                  id="categoriaInput"
+                  label="Categoria"
+                  variant="filled"
+                  onChange={handleChangeCategoryInput}
+                  value={categoryInput}
+                  sx={{ width: "100%" }}
+                />
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={() => createCategory(categoryInput)}
+                  sx={{ marginLeft: 6 }}
                 >
-                  <Typography variant="h4">Criar categoria</Typography>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "70%",
-                
-                      marginTop: 3,
-                    }}  
-                  >
-                    <TextField
-                      id="categoriaInput"
-                      label="Categoria"
-                      variant="filled"
-                      onChange={handleChangeCategoryInput}
-                      value={categoryInput}
-                      sx={{ width: "100%" }}
-                    />
-                    <Button
-                      variant="contained"
-                      color="success"
-                      onClick={() => createCategory(categoryInput)}
-                      sx={{ marginLeft: 6 }}
-                    >
-                      CRIAR
-                    </Button>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "100%",
-                      height: "100%",
-                      marginTop: 6,
-                    }}
-                  >
-                    <Typography variant="h4">Gerenciar categorias</Typography>
-                    <DataGrid
-                      rows={categories}
-                      columns={columns}
-                      apiRef={apiRef}
-                      initialState={{
-                        pagination: {
-                          paginationModel: {
-                            pageSize: 5,
-                          },
-                        },
-                      }}
-                      sx={{ width: "100%", height: "100%", marginTop: 3 }}
-                      pageSizeOptions={[5]}
-                      disableRowSelectionOnClick
-                    />
-                  </Box>
-                </Paper>
-              </Grid>
-            </Grid>
-            <Copyright sx={{ pt: 4 }} />
-          </Container>
-          </AdminLayout>
+                  CRIAR
+                </Button>
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: "100%",
+                  height: "100%",
+                  marginTop: 6,
+                }}
+              >
+                <Typography variant="h4">Gerenciar categorias</Typography>
+                <DataGrid
+                  rows={categories}
+                  columns={columns}
+                  apiRef={apiRef}
+                  initialState={{
+                    pagination: {
+                      paginationModel: {
+                        pageSize: 5,
+                      },
+                    },
+                  }}
+                  sx={{ width: "100%", height: "100%", marginTop: 3 }}
+                  pageSizeOptions={[5]}
+                  disableRowSelectionOnClick
+                />
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+        <Copyright sx={{ pt: 4 }} />
+      </Container>
+    </AdminLayout>
   );
 }

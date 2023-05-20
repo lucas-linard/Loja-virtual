@@ -9,10 +9,13 @@ import jwt_decode from "jwt-decode";
 import { useRouter } from "next/router";
 import { Button } from "@mui/material";
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context) {
   const fs = require('fs')
-  const res = await axios.get("http://localhost:8080/produtos");
+  console.log(context.query)
+  const qcat = context.query
+  const res = await axios.get("http://localhost:8080/produtos/categoria"+  qcat.id);
   const cat = await axios.get("http://localhost:8080/categorias");
+  console.log(cat.data.content)
   const data = res.data.content;
   data.map((item) => {
     if (item.imageUrl) {
@@ -21,7 +24,6 @@ export async function getServerSideProps() {
       item.imageUrl = `data:image/jpeg;base64,${base64Image}`;
     }
   })
-
   return { props: { ProductList: data, categories: cat.data.content } };
 }
 
@@ -31,6 +33,7 @@ export default function Home({ ProductList, categories }) {
   const [products, setProducts] = useState(ProductList);
   const [query, setQuery] = useState("");
   const router = useRouter()
+  console.log(query)
   useEffect(() => {
     if (!!JWT) {
       setIsLoggedIn(true)
@@ -84,7 +87,7 @@ export default function Home({ ProductList, categories }) {
             >
               <Typography variant="h5" fontWeight="bold" mt={2} mb={1} textAlign={"center"}>Departamentos</Typography>
             {categories.map((item) => (
-              <Button color="info" sx={{fontWeight: "bold"}} onClick={() => router.push({ pathname: '/Filtered', query: { id: item.id, nome: item.nome } })}>{item.nome}</Button>
+              <Button color="info" sx={{fontWeight: "bold"}} onClick={() => console.log("hello")}>{item.nome}</Button>
             ))
             }
           </Box>

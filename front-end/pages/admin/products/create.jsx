@@ -33,8 +33,8 @@ import Upload from '../../../components/Upload'
 import FileList from '../../../components/FileList'
 import { uniqueId } from "lodash";
 import filesize from "filesize";
-
-
+import Cookies from "js-cookie";
+import jwt_decode from "jwt-decode";
 export async function getServerSideProps() {
   const res = await axios.get("http://localhost:8080/categorias");
   const categorias = res.data.content;
@@ -79,6 +79,7 @@ export default function CriarProduto({ categorias }) {
 
   });
   const [formError, setFormError] = useState(false);
+  const JWT = Cookies.get("jwt");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -95,7 +96,7 @@ export default function CriarProduto({ categorias }) {
     try {
       if (!!uploadedFile) {
         data.append("file", uploadedFile.file, uploadedFile.name);
-        const res = await axios.post('http://localhost:8080/produtos/upload-image', data);
+        const res = await axios.post('http://localhost:8080/produtos/upload-image', data, { headers: { Authorization: `Bearer ${JWT}` } });
         product.imageUrl = res.data.imageUrl
       }
 
@@ -105,7 +106,7 @@ export default function CriarProduto({ categorias }) {
       product.variacao.variacoes = tagsCollection
       product.categoriaIds = [catIds?.id]
 
-      const res = await axios.post('http://localhost:8080/produtos', product)
+      const res = await axios.post('http://localhost:8080/produtos', product, { headers: { Authorization: `Bearer ${JWT}` } })
       enqueueSnackbar('Produto criado com sucesso!', { variant: 'success' });
     } catch (error) {
       enqueueSnackbar('Não foi possivel criar o produto, Confira os campos\nou tente novamente mais tarde!', { variant: 'error' });
@@ -138,6 +139,21 @@ export default function CriarProduto({ categorias }) {
       prevState.filter((file) => file.id !== id)
     );
   }
+
+  function handleAuthorityRedirect(user) {
+    if (user.authorities !== "ROLE_ADMIN") {
+      router.push("/unauthorized")
+    } 
+  }
+
+  React.useEffect(() => {
+    if (JWT) {
+      const decoded = jwt_decode(JWT);
+      handleAuthorityRedirect(decoded);
+    } else {
+      router.push("/unauthorized")
+    }
+  },[])
 
   return (
     <AdminLayout>
