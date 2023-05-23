@@ -13,10 +13,10 @@ export async function getServerSideProps(context) {
   const fs = require('fs')
   console.log(context.query)
   const qcat = context.query
-  const res = await axios.get("http://localhost:8080/produtos/categoria"+  qcat.id);
+  console.log(qcat.id)
+  const res = await axios.get(`http://localhost:8080/produtos/categoria/${qcat.id}`);
   const cat = await axios.get("http://localhost:8080/categorias");
-  console.log(cat.data.content)
-  const data = res.data.content;
+  const data = res.data;
   data.map((item) => {
     if (item.imageUrl) {
       let imageData = fs.readFileSync(item.imageUrl);
